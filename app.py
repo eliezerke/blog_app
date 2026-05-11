@@ -18,6 +18,8 @@ def create_admin():
         db.session.commit()
         print(f"✅ Admin created: {admin_email} / {admin_password}")
 
+app = app
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

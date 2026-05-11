@@ -5,7 +5,7 @@ class Config:
     load_dotenv()
     PROVIDER_NAME = 'google'
     SECRET_KEY = "never-guess tget tr373 324 not#just a number 0383-but=stuff"
-    SQLALCHEMY_DATABASE_URI = "nature_plus_database"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///nature_plus_database"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
     GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
