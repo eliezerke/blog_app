@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Gallery{% endblock %}</title>
+  <title>{% block title %}Visual Quotes{% endblock %}</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/images/top.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -17,7 +17,7 @@
     <div class="nav-inner">
       <a href="{{ url_for('index') }}" class="nav-logo">
         <span class="logo-mark" style="width: 24px; height: 28px; background-image: url(/static/assets/images/top.png); background-size: cover;"> </span>
-        Nature&nbsp;Plus
+        Visual&nbsp;Quotes
       </a>
       {% block nav_link %}
       <div class="nav-links">
@@ -81,10 +81,11 @@
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-logo">
-        
+        <span class="logo-mark" style="width: 24px; height: 28px; background-image: url(/static/assets/images/top.png); background-size: cover;"> </span>
+        Visual&nbsp;Quotes
       </div>
 
-      <p class="footer-copy">natureplus &copy; 2026</p>
+      <p class="footer-copy">eliezerkenya &copy; 2026</p>
       <div class="footer-links">
         {% if not current_user.is_authenticated %}
           <a href="{{ url_for('signup') }}">Join</a>

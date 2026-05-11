@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Gallery - Nature{% endblock %}
+{% block title %}Visual Quotes - WMB{% endblock %}
 
       {% block nav_link %}
       <div class="nav-links">
@@ -36,8 +36,8 @@
     <!-- LEFT: Text -->
     <div class="hero-left">
       <div class="hero-tag">{{ now.year if now else '2026' }}</div>
-      <h1 class="hero-title">Natural stories<br/><em>Gallery.</em></h1>
-      <p class="hero-sub">Presenting content on the things that you love. No noise, natural content.</p>
+      <h1 class="hero-title">Visual Quotes<br/><em>Gallery.</em></h1>
+      <p class="hero-sub">Presenting inspiring quotes from WMB sermons and more. No noise, simple truth, remember to share after reading, God bless you.</p>
       <div class="hero-cta-row">
         {% if not current_user.is_authenticated %}
         <a href="{{ url_for('signup') }}" class="btn-hero">
