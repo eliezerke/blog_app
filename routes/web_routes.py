@@ -230,7 +230,6 @@ def admin_new_post():
         return redirect(url_for('admin_dashboard'))
     return render_template('admin/post_form.html', post=None)
 
-
 @app.route('/admin/post/<int:post_id>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -260,6 +259,55 @@ def admin_delete_post(post_id):
     flash('Post deleted.', 'success')
     return redirect(url_for('admin_dashboard'))
 
+@app.route("/admin/users/remove-admin", methods=['POST'])
+def remove_admin():
+    req = request.get_json()
+    user_id = req.get('user_id')
+    request_key = req.get('key')
+    if request_key != Config.SECRET_KEY:
+        abort(401)
+    user = User.query.get_or_404(user_id)
+    if not user.is_admin:
+        abort(403)
+    user.is_admin = False
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route("/admin/users/make-admin", methods=['POST'])
+def make_admin():
+    req = request.get_json()
+    user_id = req.get('user_id')
+    request_key = req.get('key')
+    if request_key != Config.SECRET_KEY:
+        abort(403)
+    user = User.query.get_or_404(user_id)
+    if user.is_admin:
+        abort(403)
+    user.is_admin = True
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route("/admin/list/users", methods=['POST'])
+def list_users():
+    request_key = request.get_json().get('key')
+    if request_key != Config.SECRET_KEY:
+        abort(401)
+    users = User.query.all()
+    return jsonify([{'id': user.id, 'name': user.name, 'email': user.email, 'is_admin': user.is_admin} for user in users])
+
+@app.route("/admin/users/<int:user_id>/delete", methods=['POST'])
+def delete_user(user_id):
+    req = request.get_json()
+    request_key = req.get('key')
+    if request_key != Config.SECRET_KEY:
+        abort(401)
+    user = User.query.get_or_404(user_id)
+    if user.is_admin:
+        abort(403)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'success': True})
+
 @app.errorhandler(403)
 def forbidden(e):
     return render_template('errors/403.html'), 403
@@ -267,3 +315,11 @@ def forbidden(e):
 @app.errorhandler(404)
 def not_found(e):
     return render_template('errors/404.html'), 404
+
+@app.errorhandler(401)
+def unauthorized(e):
+    return jsonify({'message': 'Unauthorized request'}), 401
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template('errors/500.html'), 500 
