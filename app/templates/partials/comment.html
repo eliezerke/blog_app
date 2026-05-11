@@ -1,0 +1,55 @@
+<div class="comment" id="comment-{{ comment.id }}" data-id="{{ comment.id }}">
+  <div class="comment-avatar">
+    {% if comment.author.avatar %}
+      <img src="{{ comment.author.avatar }}" alt="{{ comment.author.name }}"/>
+    {% else %}
+      {{ comment.author.name[0].upper() }}
+    {% endif %}
+  </div>
+  <div class="comment-content">
+    <div class="comment-header">
+      <strong class="comment-author">{{ comment.author.name }}</strong>
+      <span class="comment-date">{{ comment.created_at.strftime('%b %d, %Y') }}</span>
+      {% if current_user.is_authenticated and (current_user.id == comment.user_id or current_user.is_admin) %}
+        <button class="comment-delete" onclick="deleteComment({{ comment.id }})" title="Delete">✕</button>
+      {% endif %}
+    </div>
+    <p class="comment-text">{{ comment.content }}</p>
+    {% if current_user.is_authenticated %}
+      <button class="reply-toggle" onclick="toggleReplyForm({{ comment.id }})">Reply</button>
+      <div class="reply-form" id="replyForm-{{ comment.id }}" style="display:none;">
+        <textarea id="replyInput-{{ comment.id }}" placeholder="Write a reply…" rows="2" maxlength="2000"></textarea>
+        <div class="reply-actions">
+          <button class="btn-submit btn-submit--sm" onclick="submitComment({{ post.id }}, {{ comment.id }})">Reply</button>
+          <button class="btn-cancel" onclick="toggleReplyForm({{ comment.id }})">Cancel</button>
+        </div>
+      </div>
+    {% endif %}
+    <!-- REPLIES -->
+    {% if comment.replies %}
+    <div class="replies" id="replies-{{ comment.id }}">
+      {% for reply in comment.replies %}
+      <div class="comment comment--reply" id="comment-{{ reply.id }}" data-id="{{ reply.id }}">
+        <div class="comment-avatar comment-avatar--sm">
+          {% if reply.author.avatar %}
+            <img src="{{ reply.author.avatar }}" alt="{{ reply.author.name }}"/>
+          {% else %}
+            {{ reply.author.name[0].upper() }}
+          {% endif %}
+        </div>
+        <div class="comment-content">
+          <div class="comment-header">
+            <strong class="comment-author">{{ reply.author.name }}</strong>
+            <span class="comment-date">{{ reply.created_at.strftime('%b %d') }}</span>
+            {% if current_user.is_authenticated and (current_user.id == reply.user_id or current_user.is_admin) %}
+              <button class="comment-delete" onclick="deleteComment({{ reply.id }})" title="Delete">✕</button>
+            {% endif %}
+          </div>
+          <p class="comment-text">{{ reply.content }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>

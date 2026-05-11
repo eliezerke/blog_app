@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}Gallery - Nature{% endblock %}
+
+      {% block nav_link %}
+      <div class="nav-links">
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-link nav-admin">Admin panel</a>
+          {% endif %}
+          <div class="nav-user">
+            <div class="avatar-sm">
+              {% if current_user.avatar %}
+                <img src="{{ current_user.avatar }}" alt="{{ current_user.name }}"/>
+              {% else %}
+                {{ current_user.name[0].upper() }}
+              {% endif %}
+            </div>
+            <span class="nav-name">{{ current_user.name.split()[0] }}</span>
+            <a href="{{ url_for('logout') }}" class="nav-link nav-logout">Sign out</a>
+          </div>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="nav-link">Sign in</a>
+          <a href="{{ url_for('signup') }}" class="btn-nav">Join</a>
+        {% endif %}
+      </div>
+      {% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="hero-split">
+
+    <!-- LEFT: Text -->
+    <div class="hero-left">
+      <div class="hero-tag">{{ now.year if now else '2026' }}</div>
+      <h1 class="hero-title">Natural stories<br/><em>Gallery.</em></h1>
+      <p class="hero-sub">Presenting content on the things that you love. No noise, natural content.</p>
+      <div class="hero-cta-row">
+        {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('signup') }}" class="btn-hero">
+          Join the conversation <span>→</span>
+        </a>
+        {% endif %}
+        <a href="#posts" class="btn-hero-ghost">Browse posts ↓</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-num">{{ posts.total if posts else '0' }}</span>
+          <span class="hero-stat-label">Articles</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">Free</span>
+          <span class="hero-stat-label">Always</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">↗</span>
+          <span class="hero-stat-label">ads free</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Visual -->
+    <div class="hero-right">
+      <div class="hero-visual">
+        <!-- Decorative floating cards -->
+        <div class="hv-card hv-card--1">
+          <div class="hvc-dot"></div>
+          <div class="hvc-lines">
+            <span></span><span></span><span class="short"></span>
+          </div>
+        </div>
+        <div class="hv-card hv-card--2">
+          <div class="hvc-img"></div>
+          <div class="hvc-lines">
+            <span></span><span class="short"></span>
+          </div>
+        </div>
+        <div class="hv-card hv-card--3">
+          <div class="hvc-avatar-row">
+            <div class="hvc-avatar">J</div>
+            <div class="hvc-comment-lines">
+              <span></span><span class="short"></span>
+            </div>
+          </div>
+        </div>
+        <!-- Central glow orb -->
+        <div class="hv-orb"></div>
+        <!-- Big quote mark -->
+        <div class="hv-quote">"</div>
+        <!-- Floating tags -->
+        <div class="hv-tag hv-tag--1">Articles</div>
+        <div class="hv-tag hv-tag--2">Featured</div>
+        <div class="hv-tag hv-tag--3">Tech</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="hero-scroll-hint">scroll</div>
+</section>
+
+<div id="posts"></div>
+<!-- CATEGORY FILTER -->
+{% if categories %}
+<div class="category-bar">
+  <div class="category-inner">
+    <a href="{{ url_for('index') }}" class="cat-pill {% if not current_category %}cat-pill--active{% endif %}">All</a>
+    {% for cat in categories %}
+      <a href="{{ url_for('index', category=cat) }}"
+         class="cat-pill {% if current_category == cat %}cat-pill--active{% endif %}">{{ cat }}</a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- POSTS GRID -->
+<section class="posts-section">
+  <div class="posts-grid">
+    {% for post in posts.items %}
+      {% if loop.index == 1 %}
+      <!-- Featured first post -->
+      <article class="post-card post-card--featured" onclick="location.href='{{ url_for('post_detail', slug=post.slug) }}'">
+        {% if post.cover_image %}
+          <div class="card-img-wrap">
+            <img src="{{ post.cover_image }}" alt="{{ post.title }}" loading="lazy"/>
+          </div>
+        {% else %}
+          <div class="card-img-placeholder card-img-placeholder--lg">
+            <span>{{ post.title[0] }}</span>
+          </div>
+        {% endif %}
+        <div class="card-body">
+          {% if post.category %}<span class="card-cat">{{ post.category }}</span>{% endif %}
+          <h2 class="card-title card-title--lg">{{ post.title }}</h2>
+          <p class="card-excerpt">{{ post.excerpt or post.content[:180] }}...</p>
+          <div class="card-meta">
+            <span class="card-date">{{ post.created_at.strftime('%b %d, %Y') }}</span>
+            <div class="card-stats">
+              <span class="stat">❤ {{ post.like_count }}</span>
+              <span class="stat">💬 {{ post.comment_count }}</span>
+            </div>
+          </div>
+        </div>
+      </article>
+      {% else %}
+      <!-- Regular post card -->
+      <article class="post-card" onclick="location.href='{{ url_for('post_detail', slug=post.slug) }}'">
+        {% if post.cover_image %}
+          <div class="card-img-wrap card-img-wrap--sm">
+            <img src="{{ post.cover_image }}" alt="{{ post.title }}" loading="lazy"/>
+          </div>
+        {% else %}
+          <div class="card-img-placeholder">
+            <span>{{ post.title[0] }}</span>
+          </div>
+        {% endif %}
+        <div class="card-body">
+          {% if post.category %}<span class="card-cat">{{ post.category }}</span>{% endif %}
+          <h2 class="card-title">{{ post.title }}</h2>
+          <p class="card-excerpt card-excerpt--sm">{{ (post.excerpt or post.content)[:120] }}...</p>
+          <div class="card-meta">
+            <span class="card-date">{{ post.created_at.strftime('%b %d') }}</span>
+            <div class="card-stats">
+              <span class="stat">❤ {{ post.like_count }}</span>
+              <span class="stat">💬 {{ post.comment_count }}</span>
+            </div>
+          </div>
+        </div>
+      </article>
+      {% endif %}
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">◆</div>
+        <h3>No posts yet</h3>
+        <p>Check back soon — something's brewing...</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- PAGINATION -->
+  {% if posts.pages > 1 %}
+  <div class="pagination">
+    {% if posts.has_prev %}
+      <a href="{{ url_for('index', page=posts.prev_num, category=current_category) }}" class="page-btn">← Prev</a>
+    {% endif %}
+    <span class="page-info">{{ posts.page }} / {{ posts.pages }}</span>
+    {% if posts.has_next %}
+      <a href="{{ url_for('index', page=posts.next_num, category=current_category) }}" class="page-btn">Next →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+<!-- JOIN BANNER (for non-authenticated users) -->
+{% if not current_user.is_authenticated %}
+<section class="join-banner">
+  <div class="join-inner">
+    <h2>Join the conversation.</h2>
+    <p>Sign in to like posts and leave comments.</p>
+    <div class="join-btns">
+      <a href="{{ url_for('signup') }}" class="btn-primary">Create account</a>
+      <a href="{{ url_for('login') }}" class="btn-ghost">Sign in</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

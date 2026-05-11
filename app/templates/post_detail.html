@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — The Dispatch{% endblock %}
+{% block content %}
+
+<article class="article">
+
+  <!-- ARTICLE HEADER -->
+  <header class="article-header">
+    {% if post.category %}
+      <a href="{{ url_for('index', category=post.category) }}" class="article-cat">{{ post.category }}</a>
+    {% endif %}
+    <h1 class="article-title">{{ post.title }}</h1>
+    <div class="article-meta">
+      <span>{{ post.created_at.strftime('%B %d, %Y') }}</span>
+      <span class="meta-dot">·</span>
+      <span>{{ (post.content | length // 250) + 1 }} min read</span>
+    </div>
+  </header>
+
+  <!-- COVER IMAGE -->
+  {% if post.cover_image %}
+  <div class="article-cover">
+    <img src="{{ post.cover_image }}" alt="{{ post.title }}"/>
+  </div>
+  {% endif %}
+
+  <!-- CONTENT -->
+  <div class="article-body">
+    {{ post.content | safe }}
+  </div>
+
+  <!-- REACTION BAR -->
+  <div class="reaction-bar" id="reactionBar">
+    <button
+      class="like-btn {% if post.is_liked_by(current_user) %}liked{% endif %}"
+      id="likeBtn"
+      data-post-id="{{ post.id }}"
+      data-auth="{{ current_user.is_authenticated | lower }}"
+      aria-label="Like post"
+    >
+      <span class="like-heart">♥</span>
+      <span class="like-count" id="likeCount">{{ post.like_count }}</span>
+    </button>
+    <button class="comment-jump-btn" onclick="document.getElementById('comments').scrollIntoView({behavior:'smooth'})">
+      💬 <span>{{ post.comment_count }}</span> comments
+    </button>
+    <button class="share-btn" onclick="sharePost()">↑ Share</button>
+  </div>
+
+  <!-- COMMENTS SECTION -->
+  <section class="comments-section" id="comments">
+    <h2 class="comments-title">
+      Discussion
+      <span class="comment-badge" id="commentBadge">{{ post.comment_count }}</span>
+    </h2>
+
+    {% if current_user.is_authenticated %}
+    <!-- NEW COMMENT FORM -->
+    <div class="comment-form-wrap">
+      <div class="avatar-sm avatar-form">
+        {% if current_user.avatar %}
+          <img src="{{ current_user.avatar }}" alt="{{ current_user.name }}"/>
+        {% else %}
+          {{ current_user.name[0].upper() }}
+        {% endif %}
+      </div>
+      <div class="comment-form" id="mainCommentForm">
+        <textarea id="commentInput" placeholder="Share your thoughts…" rows="3" maxlength="2000"></textarea>
+        <div class="comment-form-actions">
+          <span class="char-count" id="charCount">0 / 2000</span>
+          <button class="btn-submit" id="submitComment" onclick="submitComment({{ post.id }}, null)">
+            Post comment
+          </button>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="comment-auth-prompt">
+      <p><a href="{{ url_for('login') }}">Sign in</a> or <a href="{{ url_for('signup') }}">create an account</a> to join the discussion.</p>
+    </div>
+    {% endif %}
+
+    <!-- COMMENTS LIST -->
+    <div class="comments-list" id="commentsList">
+      {% for comment in comments %}
+        {% include 'partials/comment.html' %}
+      {% else %}
+        <div class="no-comments" id="noComments">
+          <p>Be the first to comment.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+</article>
+
+<!-- RELATED POSTS -->
+{% if related %}
+<section class="related-section">
+  <div class="related-inner">
+    <h3 class="related-title">More articles</h3>
+    <div class="related-grid">
+      {% for rpost in related %}
+      <a href="{{ url_for('post_detail', slug=rpost.slug) }}" class="related-card">
+        {% if rpost.cover_image %}
+          <div class="related-img"><img src="{{ rpost.cover_image }}" alt="{{ rpost.title }}"/></div>
+        {% else %}
+          <div class="related-placeholder">{{ rpost.title[0] }}</div>
+        {% endif %}
+        <div class="related-body">
+          {% if rpost.category %}<span class="card-cat">{{ rpost.category }}</span>{% endif %}
+          <h4>{{ rpost.title }}</h4>
+          <span class="card-date">{{ rpost.created_at.strftime('%b %d, %Y') }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const POST_ID = {{ post.id }};
+  const IS_AUTH = {{ current_user.is_authenticated | lower }};
+  const LOGIN_URL = "{{ url_for('login') }}";
+</script>
+<script src="{{ url_for('static', filename='js/post.js') }}"></script>
+{% endblock %}

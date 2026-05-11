@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Post' if post else 'Add New Post' }} Admin{% endblock %}
+{% block content %}
+
+<div class="admin-page">
+  <div class="admin-header">
+    <div>
+      <h1>{{ 'Edit Post' if post else 'Create New Post' }}</h1>
+      <p><a href="{{ url_for('admin_dashboard') }}">&nbsp; Return to dashboard</a></p>
+    </div>
+    {% if post %}
+      <a href="{{ url_for('post_detail', slug=post.slug) }}" class="btn-ghost">View post ↗</a>
+    {% endif %}
+  </div>
+
+  <form method="POST" class="post-form">
+    <div class="form-main">
+      <div class="field">
+        <label for="title">Title *</label>
+        <input type="text" id="title" name="title" value="{{ post.title if post else '' }}"
+               placeholder="An interesting title…" required class="input-lg"/>
+      </div>
+
+      <div class="field">
+        <label for="excerpt">Summary <span class="field-hint">shown on cards (optional)</span></label>
+        <textarea id="excerpt" name="excerpt" rows="2" placeholder="A short summary of the post…">{{ post.excerpt if post else '' }}</textarea>
+      </div>
+
+      <div class="field">
+        <label for="content">Content * <span class="field-hint">HTML supported</span></label>
+        <textarea id="content" name="content" rows="20" placeholder="Write your post here. HTML is supported." required class="content-editor">{{ post.content if post else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="form-sidebar">
+      <div class="sidebar-card">
+        <h3>Publishing environment</h3>
+        <div class="field">
+          <label class="toggle-label">
+            <input type="checkbox" name="published" id="published" {{ 'checked' if not post or post.published }}>
+            <span class="toggle-slider"></span>
+            <span style="margin-left: 50px;" class="toggle-text">Publishe live</span>
+          </label>
+        </div>
+        <div class="sidebar-actions">
+          <button type="submit" class="btn-primary btn-full">
+            {{ 'Update Post' if post else 'Publish Post' }}
+          </button>
+          <a href="{{ url_for('admin_dashboard') }}" class="btn-ghost btn-full">Cancel</a>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Other information(Optional)</h3>
+        <div class="field">
+          <label for="category">Category</label>
+          <input type="text" id="category" name="category" value="{{ post.category if post else '' }}"
+                 placeholder="e.g. Technology, Design…"/>
+        </div>
+        <div class="field">
+          <label for="cover_image">Cover Image URL</label>
+          <input type="url" id="cover_image" name="cover_image" value="{{ post.cover_image if post else '' }}"
+                 placeholder="https://…"/>
+          <div id="coverPreview" class="cover-preview" style="{{ 'display:block' if post and post.cover_image else 'display:none' }}">
+            {% if post and post.cover_image %}
+              <img src="{{ post.cover_image }}" alt="Preview"/>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Live cover image preview
+  document.getElementById('cover_image').addEventListener('input', function() {
+    const preview = document.getElementById('coverPreview');
+    if (this.value) {
+      preview.innerHTML = `<img src="${this.value}" alt="Preview" onerror="this.parentElement.style.display='none'"/>`;
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+    }
+  });
+</script>
+{% endblock %}

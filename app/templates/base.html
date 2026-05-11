@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Gallery{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/images/top.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-inner">
+      <a href="{{ url_for('index') }}" class="nav-logo">
+        <span class="logo-mark" style="width: 24px; height: 28px; background-image: url(/static/assets/images/top.png); background-size: cover;"> </span>
+        Nature&nbsp;Plus
+      </a>
+      {% block nav_link %}
+      <div class="nav-links">
+        <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-link nav-admin">Admin panel</a>
+          {% endif %}
+          <div class="nav-user">
+            <div class="avatar-sm">
+              {% if current_user.avatar %}
+                <img src="{{ current_user.avatar }}" alt="{{ current_user.name }}"/>
+              {% else %}
+                {{ current_user.name[0].upper() }}
+              {% endif %}
+            </div>
+            <span class="nav-name">{{ current_user.name.split()[0] }}</span>
+            <a href="{{ url_for('logout') }}" class="nav-link nav-logout">Sign out</a>
+          </div>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="nav-link">Sign in</a>
+          <a href="{{ url_for('signup') }}" class="btn-nav">Join</a>
+        {% endif %}
+      </div>
+      {% endblock %}
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <!-- Mobile menu -->
+    <div class="nav-mobile" id="navMobile">
+      <a href="{{ url_for('index') }}">Home</a>
+      {% if current_user.is_authenticated %}
+        {% if current_user.is_admin %}<a href="{{ url_for('admin_dashboard') }}">Admin panel</a>{% endif %}
+        <a href="{{ url_for('logout') }}">Sign out</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Sign in</a>
+        <a href="{{ url_for('signup') }}">Create account</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash--{{ category }}">
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()">✕</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- MAIN -->
+  <main>{% block content %}{% endblock %}</main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        
+      </div>
+
+      <p class="footer-copy">natureplus &copy; 2026</p>
+      <div class="footer-links">
+        {% if not current_user.is_authenticated %}
+          <a href="{{ url_for('signup') }}">Join</a>
+          <a href="{{ url_for('login') }}">Sign in</a>
+        {% endif %}
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
