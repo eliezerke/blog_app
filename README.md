@@ -3,6 +3,7 @@
 # WMB visual quotes & stories — Blog Platform
 
 A clean, editorial blog platform built with Flask. Admin posts content, visitors read freely, signed-in users can like and comment.
+visit it at [released website](https://eliezermedia.pythonanywhere.com/)
 
 ## Features
 
