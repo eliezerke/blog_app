@@ -11,3 +11,6 @@ class Config:
     GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
     SERVER_METADATA_URI = 'https://accounts.google.com/.well-known/openid-configuration'
     DATA = {'scope': 'openid email profile'}
+
+    DATABASE_URL = os.getenv("DATABASE_URL_A")
+    SERVICE_ACCOUNT_PATH = os.getenv("SERVICE_ACCOUNT_PATH_A")

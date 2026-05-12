@@ -1,4 +1,5 @@
 from models.models import User, Comment, Post, Like
+from auth.analytics import initialize, write, update, read
 from app.master import *
 
 def admin_required(f):
@@ -104,10 +105,20 @@ def google_callback():
             user.avatar = avatar
             user.oauth_id = google_id
             db.session.commit()
-
         login_user(user)
+
+        initialize()  
+        cur = read(f"test_analytics/logins/google")
+        if cur: update(f"test_analytics/logins/google", {"login_count": cur.get("login_count", 0) + 1})
+        if cur == None:  write(f"test_analytics/logins/google", {"login_count": 1, "type": "google"})   
+        flash('Logged in with Google successfully!', 'success')
         return redirect(url_for('index'))
     except Exception as e:
+        initialize()  
+        cur = read(f"test_analytics/error_pages/auth_google_callback")
+        if cur: update(f"test_analytics/error_pages/auth_google_callback", {"error_count": cur.get("error_count", 0) + 1})
+        if cur == None:  write(f"test_analytics/error_pages/auth_google_callback", {"error_count": 1, "type": "google failed"})
+        print("""Google authentication error: """, e)
         flash('Google authentication failed. Please try again.', 'error')
         return redirect(url_for('login'))
 
@@ -134,6 +145,11 @@ def post_detail(slug):
         Post.id != post.id,
         Post.published == True
     ).limit(3).all()
+    initialize()  
+    cur = read(f"test_analytics/post_visits/{post.slug}")
+    if cur: update(f"test_analytics/post_visits/{post.slug}", {"visit_count": cur.get("visit_count", 0) + 1})
+    if cur == None:  write(f"test_analytics/post_visits/{post.slug}", {"post_id": post.id, "title": post.slug, "visit_count": 1, "timestamp": datetime.utcnow().isoformat()})
+    db.session.commit()
     return render_template('post_detail.html', post=post, comments=comments, related=related)
 
 @app.route('/api/like/<int:post_id>', methods=['POST'])
@@ -308,18 +324,42 @@ def delete_user(user_id):
     db.session.commit()
     return jsonify({'success': True})
 
+@app.errorhandler(401)
+def unauthorized(e):
+    initialize()  
+    cur = read(f"test_analytics/error_pages/{e.code}")
+    if cur: update(f"test_analytics/error_pages/{e.code}", {"occurence": cur.get("occurence", 0) + 1})
+    if cur == None:  write(f"test_analytics/error_pages/{e.code}", {"occurence": 1, "type": e.code})
+    return jsonify({'message': 'Unauthorized request'}), 401
+
 @app.errorhandler(403)
 def forbidden(e):
+    initialize()  
+    cur = read(f"test_analytics/error_pages/{e.code}")
+    if cur: update(f"test_analytics/error_pages/{e.code}", {"occurence": cur.get("occurence", 0) + 1})
+    if cur == None:  write(f"test_analytics/error_pages/{e.code}", {"occurence": 1, "type": e.code})
     return render_template('errors/403.html'), 403
 
 @app.errorhandler(404)
 def not_found(e):
+    initialize()
+    cur = read(f"test_analytics/error_pages/{e.code}")
+    if cur: update(f"test_analytics/error_pages/{e.code}", {"occurence": cur.get("occurence", 0) + 1})
+    if cur == None:  write(f"test_analytics/error_pages/{e.code}", {"occurence": 1, "type": e.code})
     return render_template('errors/404.html'), 404
 
-@app.errorhandler(401)
-def unauthorized(e):
-    return jsonify({'message': 'Unauthorized request'}), 401
+@app.errorhandler(405)
+def method_not_allowed(e):
+    initialize()  
+    cur = read(f"test_analytics/error_pages/{e.code}")
+    if cur: update(f"test_analytics/error_pages/{e.code}", {"occurence": cur.get("occurence", 0) + 1})
+    if cur == None:  write(f"test_analytics/error_pages/{e.code}", {"occurence": 1, "type": e.code})
+    return {"message": "Method not allowed"}, 405
 
 @app.errorhandler(500)
 def server_error(e):
+    initialize()  
+    cur = read(f"test_analytics/error_pages/{e.code}")
+    if cur: update(f"test_analytics/error_pages/{e.code}", {"occurence": cur.get("occurence", 0) + 1})
+    if cur == None:  write(f"test_analytics/error_pages/{e.code}", {"occurence": 1, "type": e.code})
     return render_template('errors/500.html'), 500 
