@@ -1,10 +1,12 @@
-# The Dispatch — Blog Platform
+[![Version](https://img.shields.io/badge/VisualQuotes&SweetStories-1.0.0-brightgreen.svg?maxAge=259200)]()
+
+# WMB visual quotes & stories — Blog Platform
 
 A clean, editorial blog platform built with Flask. Admin posts content, visitors read freely, signed-in users can like and comment.
 
 ## Features
 
-- **Public** — Browse and read all posts (no account needed)
+- **Public** — Browse and read all posts and share (no account needed)
 - **Members** — Like posts, leave comments and replies
 - **Admin** — Create, edit, delete posts; view engagement stats
 - **Auth** — Email/password signup + Google OAuth
